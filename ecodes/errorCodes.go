@@ -1,0 +1,23 @@
+package ecodes
+
+// Define custom error codes here
+//GLOBAL
+const (
+	NO_ERROR              = -1
+	UNAUTHORIZED          = 401
+	EXPIRED_TOKEN         = 402
+	INTERNAL_SERVER_ERROR = 999
+)
+
+//USER CREATION AND LOGIN ERRORS
+const (
+	EMAIL_AND_PASSWORD_FORMAT_INVALID = 100
+	EMAIL_AND_PASSWORD_REQUIRED       = 101
+	INVALID_EMAIL_FORMAT              = 102
+	INVALID_PASSWORD_FORMAT           = 103
+	PASSWORD_LENGTH_TOO_SHORT         = 104
+	PASSWORD_LENGTH_TOO_LONG          = 105
+	USER_ALREADY_EXISTS               = 106
+	USER_DOES_NOT_EXIST               = 107
+	INCORRECT_CREDENTIALS             = 108
+)
