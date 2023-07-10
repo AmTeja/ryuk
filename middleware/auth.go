@@ -23,7 +23,10 @@ func RequireAuth(c *gin.Context) {
 	}
 
 	//validate token
-	if !validateToken(token) {
+
+	ok, userId := validateToken(token)
+
+	if !ok {
 		c.AbortWithStatusJSON(401, models.ServerResponse{
 			Message: "Unauthorized",
 			Code:    ecodes.UNAUTHORIZED,
@@ -31,21 +34,22 @@ func RequireAuth(c *gin.Context) {
 		})
 	}
 
+	//set userId in context
+	c.Set("userId", userId)
+
 	c.Next()
 }
 
-func validateToken(tokenString string) bool {
+func validateToken(tokenString string) (bool, uint) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {
-		return false
+		return false, 0
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -53,7 +57,9 @@ func validateToken(tokenString string) bool {
 	} else {
 		fmt.Println(err)
 	}
-
-	return true
+	userId := token.Claims.(jwt.MapClaims)["sub"]
+	fmt.Println("CLAIMS: ", token.Claims.(jwt.MapClaims))
+	fmt.Println("USER ID : ", userId)
+	return true, userId.(uint)
 
 }

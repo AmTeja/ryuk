@@ -23,5 +23,6 @@ func main() {
 			"message": "Valid Token",
 		})
 	})
+	r.POST("/profile", middleware.RequireAuth, controllers.CreateProfile)
 	r.Run()
 }
