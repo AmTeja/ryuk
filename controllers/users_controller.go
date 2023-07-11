@@ -197,10 +197,87 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	c.Set("user", user)
+
+	eCode := utils.CheckProfileCompletetion(c)
+
 	//send data with user password removed
 	c.JSON(http.StatusOK, models.ServerResponse{
 		Message: "User logged in successfully",
-		Code:    ecodes.NO_ERROR,
+		Code:    eCode,
+		Data:    gin.H{"token": token},
+	})
+
+}
+
+func LoginWithToken(c *gin.Context) {
+
+	//get token from header
+	token := c.GetHeader("Authorization")
+
+	if token == "" {
+		c.JSON(http.StatusBadRequest, models.ServerResponse{
+			Message: "Token is required",
+			Code:    ecodes.TOKEN_REQUIRED,
+			Data:    nil,
+		})
+		return
+	}
+
+	//validate token
+	claims, err := utils.ValidateToken(token)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ServerResponse{
+			Message: "Invalid Token",
+			Code:    ecodes.EXPIRED_TOKEN,
+			Data:    nil,
+		})
+		return
+	}
+
+	//get user
+	var user models.User
+	result := intializers.DB.Where("id = ?", claims["sub"]).First(&user)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, models.ServerResponse{
+			Message: "Invalid Token",
+			Code:    ecodes.EXPIRED_TOKEN,
+			Data:    nil,
+		})
+		return
+	}
+
+	if user.ID == 0 {
+		c.JSON(http.StatusBadRequest, models.ServerResponse{
+			Message: "Invalid Token",
+			Code:    ecodes.EXPIRED_TOKEN,
+			Data:    nil,
+		})
+		return
+	}
+
+	//generate token
+	token, err = utils.GenerateToken(user.ID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ServerResponse{
+			Message: "Something went wrong",
+			Code:    ecodes.INTERNAL_SERVER_ERROR,
+			Data:    nil,
+		})
+		return
+	}
+
+	c.Set("user", user)
+
+	eCode := utils.CheckProfileCompletetion(c)
+
+	//send data with user password removed
+	c.JSON(http.StatusOK, models.ServerResponse{
+		Message: "User logged in successfully",
+		Code:    eCode,
 		Data:    gin.H{"token": token},
 	})
 

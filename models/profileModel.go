@@ -1,13 +1,14 @@
 package models
 
-import "gorm.io/gorm"
+import "time"
 
 type Profile struct {
-	gorm.Model
-	UserID      uint
-	Email       string `gorm:"unique"`
+	ID          uint `gorm:"primarykey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	UserID      uint `gorm:"unique"`
 	DisplayName string
-	UserName    string
+	UserName    string `gorm:"unique"`
 	DisplayURL  string
 	Bio         string
 }

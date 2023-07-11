@@ -53,13 +53,11 @@ func validateToken(tokenString string) (bool, uint) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["sub"])
+		userId := claims["sub"]
+
+		return true, uint(userId.(float64))
 	} else {
-		fmt.Println(err)
+		return false, 0
 	}
-	userId := token.Claims.(jwt.MapClaims)["sub"]
-	fmt.Println("CLAIMS: ", token.Claims.(jwt.MapClaims))
-	fmt.Println("USER ID : ", userId)
-	return true, userId.(uint)
 
 }

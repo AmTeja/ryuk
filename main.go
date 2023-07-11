@@ -18,11 +18,12 @@ func main() {
 
 	r.POST("/signup", controllers.SignUp)
 	r.POST("/login", controllers.Login)
-	r.GET("/validate", middleware.RequireAuth, func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "Valid Token",
-		})
-	})
+	r.POST("/loginToken", controllers.LoginWithToken)
+
+	r.GET("/profile", middleware.RequireAuth, controllers.GetProfile)
 	r.POST("/profile", middleware.RequireAuth, controllers.CreateProfile)
+	r.PUT("/profile", middleware.RequireAuth, controllers.UpdateProfile)
+	r.DELETE("/profile", middleware.RequireAuth, controllers.DeleteProfile)
+
 	r.Run()
 }
